@@ -1,5 +1,5 @@
-from Processor import Processor
-from Grabber import Grabber
+from processor import Processor
+from grabber import Grabber
 import threading
 
 
