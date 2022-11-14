@@ -25,8 +25,8 @@ class Grabber:
         self.dimensions = (
             self.left,
             self.top,
-            self.width + self.left,
-            self.height + self.top,
+            abs(self.width + self.left),
+            abs(self.height + self.top),
         )
 
     def capture_image(self, debug=False):

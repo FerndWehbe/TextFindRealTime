@@ -22,19 +22,8 @@ process = Processor()
 
 
 def draw_rect(pos: tuple[int, int, int, int], width, height, color):
-    rect = win32gui.CreateRoundRectRgn(*monitor, 2, 2)
-    win32gui.RedrawWindow(
-        hwnd,
-        monitor,
-        rect,
-        win32con.RDW_INVALIDATE | win32con.RDW_UPDATENOW | win32con.RDW_ERASE,
-    )
-    for x in range(width):
-        win32gui.SetPixel(dc, pos[0] + x, pos[1], color)
-        win32gui.SetPixel(dc, pos[0] + x, pos[1] + height, color)
-    for y in range(height):
-        win32gui.SetPixel(dc, pos[0], pos[1] + y, color)
-        win32gui.SetPixel(dc, pos[0] + width, pos[1] + y, color)
+    win32gui.DrawEdge(dc, pos, win32con.EDGE_BUMP, win32con.BF_RECT)  # type: ignore
+    win32gui.InvalidateRect(hwnd, monitor, True)  # type: ignore
 
 
 def on_press(key):
@@ -65,11 +54,18 @@ def on_release(key):
         if key == keyboard.Key.ctrl_l:
             if len(position) > 1:
                 coords = [*position[0], *position[1]]
-                grab.dimensions = (coords[0], coords[1], coords[2], coords[3])
+                grab.dimensions = (
+                    min(coords[0], coords[2]),
+                    min(coords[1], coords[3]),
+                    max(coords[0], coords[2]),
+                    max(coords[1], coords[3]),
+                )
                 img = grab.capture_image()
                 text = process.find_text(img)
+
                 print(text)
                 print("\n\n\n\n\n")
+
             position = []
     except AttributeError:
         pass
@@ -79,3 +75,4 @@ if __name__ == "__main__":
 
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:  # type: ignore
         listener.join()
+        listener.wait()
